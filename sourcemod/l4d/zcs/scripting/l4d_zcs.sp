@@ -1,7 +1,7 @@
 /**
  * vim: set ts=4 :
  * =============================================================================
- * Zombie Character Select 0.9.1 by XBetaAlpha
+ * Zombie Character Select 0.9.2 by XBetaAlpha
  *
  * Allows a player on the infected team to change their infected class.
  * Based on the original Infected Character Select by Crimson_Fox.
@@ -41,7 +41,7 @@
 #define PLUGIN_NAME		"Zombie Character Select"
 #define PLUGIN_AUTHOR		"XBetaAlpha"
 #define PLUGIN_DESC		"Allows infected team players to change their class in ghost mode. (Versus Only)"
-#define PLUGIN_VERSION		"0.9.1"
+#define PLUGIN_VERSION		"0.9.2"
 #define PLUGIN_URL		"http://dev.andrewx.net/sm/zcs"
 #define PLUGIN_FILENAME		"l4d_zcs"
 
@@ -95,14 +95,20 @@ new Handle:g_hAllowLastOnLimit	= INVALID_HANDLE;
 new Handle:g_hAllowClassSwitch	= INVALID_HANDLE;
 new Handle:g_hAllowCullSwitch	= INVALID_HANDLE;
 new Handle:g_hAllowSpawnSwitch	= INVALID_HANDLE;
+new Handle:g_hAccessLevel       = INVALID_HANDLE;
 new Handle:g_hSelectKey		= INVALID_HANDLE;
 new Handle:g_hNotifyKey		= INVALID_HANDLE;
+new Handle:g_hNotifyClass       = INVALID_HANDLE;
+new Handle:g_hNotifyLock        = INVALID_HANDLE;
 new Handle:g_hSelectDelay 	= INVALID_HANDLE;
 new Handle:g_hCooldownEnable	= INVALID_HANDLE;
 new Handle:g_hCooldownSmoker	= INVALID_HANDLE;
 new Handle:g_hCooldownBoomer	= INVALID_HANDLE;
 new Handle:g_hCooldownHunter	= INVALID_HANDLE;
 new Handle:g_hLockDelay		= INVALID_HANDLE;
+new Handle:g_hSmokerLimit       = INVALID_HANDLE;
+new Handle:g_hBoomerLimit       = INVALID_HANDLE;
+new Handle:g_hHunterLimit       = INVALID_HANDLE;
 
 new Handle:g_hLockTimer[L4D_MAXPLAYERS+1]	= {INVALID_HANDLE,...};
 new Handle:g_hAllowClassTimer[ZC_INDEXSIZE]	= {INVALID_HANDLE,...};
@@ -127,12 +133,17 @@ new bool:g_bAllowCullSwitch	= false;
 new bool:g_bAllowSpawnSwitch	= false;
 new bool:g_bCooldownEnable	= false;
 new bool:g_bNotifyKey		= false;
+new bool:g_bNotifyClass         = false;
+new bool:g_bNotifyLock          = false;
 new bool:g_bSwitchDisabled	= false;
 new bool:g_bRoundStart		= false;
 new bool:g_bRoundEnd		= false;
 new bool:g_bLeftSafeRoom	= false;
 new bool:g_bHookedEvents	= false;
 
+new g_iSmokerLimit              = -1;
+new g_iBoomerLimit              = -1;
+new g_iHunterLimit              = -1;
 new g_iSelectKey		= 0;
 new g_oAbility			= 0;
 
@@ -142,6 +153,8 @@ new Float:g_fCooldownSmoker		= 0.0;
 new Float:g_fCooldownBoomer		= 0.0;
 new Float:g_fCooldownHunter		= 0.0;
 new Float:g_fClassDelay[ZC_INDEXSIZE]	= {0.0,...};
+
+new String:g_sAccessLevel[8];
 
 new g_iLastClass[L4D_MAXPLAYERS+1]	= {0,...};
 new g_iNextClass[L4D_MAXPLAYERS+1]	= {0,...};
@@ -187,14 +200,20 @@ public OnPluginStart()
 	g_hAllowClassSwitch	= CreateConVar("zcs_allow_class_switch", "1", "Allow player to change their infected class.", FCVAR_PLUGIN);
 	g_hAllowCullSwitch	= CreateConVar("zcs_allow_cull_switch", "0", "Allow player to select class when out of range of survivors.", FCVAR_PLUGIN);
 	g_hAllowSpawnSwitch	= CreateConVar("zcs_allow_spawn_switch", "0", "Allow player to select class after returning to ghost from spawn.", FCVAR_PLUGIN);
+        g_hAccessLevel          = CreateConVar("zcs_access_level", "-1", "Access level required to change class. (Up to 8 flags, -1=Disable - All Users Allowed)", FCVAR_PLUGIN);
 	g_hSelectKey		= CreateConVar("zcs_select_key", "1", "Key binding for infected class selection. (1=MELEE, 2=RELOAD, 3=ZOOM)", FCVAR_PLUGIN, true, 1.0, true, 3.0);
 	g_hNotifyKey		= CreateConVar("zcs_notify_key", "1", "Broadcast infected class selection key binding to players.", FCVAR_PLUGIN);
+        g_hNotifyClass          = CreateConVar("zcs_notify_class", "1", "Broadcast class & limit status messages to players.", FCVAR_PLUGIN);
+        g_hNotifyLock           = CreateConVar("zcs_notify_lock", "1", "Broadcast lock timer status messages to players.", FCVAR_PLUGIN);
 	g_hSelectDelay		= CreateConVar("zcs_select_delay", "0.5", "Infected class switch delay in (s).", FCVAR_PLUGIN, true, 0.1, true, 10.0);
 	g_hCooldownEnable	= CreateConVar("zcs_cooldown_enable", "0", "Enable infected class restriction timer after player death. (0=Disable timer)", FCVAR_PLUGIN);
 	g_hCooldownSmoker	= CreateConVar("zcs_cooldown_smoker", "-1", "Time before smoker class is allowed after player death in (s). (-1=Use Director, 0=No delay, 0-60=Delay)", FCVAR_PLUGIN, true, -1.0, true, 60.0);
 	g_hCooldownBoomer	= CreateConVar("zcs_cooldown_boomer", "-1", "Time before boomer class is allowed after player death in (s). (-1=Use Director, 0=No delay, 0-60=Delay)", FCVAR_PLUGIN, true, -1.0, true, 60.0);
 	g_hCooldownHunter	= CreateConVar("zcs_cooldown_hunter", "-1", "Time before hunter class is allowed after player death in (s). (-1=Use Director, 0=No delay, 0-60=Delay)", FCVAR_PLUGIN, true, -1.0, true, 60.0);
 	g_hLockDelay		= CreateConVar("zcs_lock_delay", "0", "Time before infected class switching is locked in (s). (0=Disable lock)", FCVAR_PLUGIN, true, 0.0, true, 600.0);
+        g_hSmokerLimit          = CreateConVar("zcs_smoker_limit", "-1", "How many Smokers allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", FCVAR_PLUGIN, true, -1.0, true, 10.0);
+        g_hBoomerLimit          = CreateConVar("zcs_boomer_limit", "-1", "How many Boomers allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", FCVAR_PLUGIN, true, -1.0, true, 10.0);
+        g_hHunterLimit          = CreateConVar("zcs_hunter_limit", "-1", "How many Hunters allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", FCVAR_PLUGIN, true, -1.0, true, 10.0);
 
 	HookConVarChange(g_hEnable, Sub_ConVarsChanged);
 	HookConVarChange(g_hDebug, Sub_ConVarsChanged);
@@ -207,14 +226,20 @@ public OnPluginStart()
 	HookConVarChange(g_hAllowClassSwitch, Sub_ConVarsChanged);
 	HookConVarChange(g_hAllowCullSwitch, Sub_ConVarsChanged);
 	HookConVarChange(g_hAllowSpawnSwitch, Sub_ConVarsChanged);
+        HookConVarChange(g_hAccessLevel, Sub_ConVarsChanged);
 	HookConVarChange(g_hSelectKey, Sub_ConVarsChanged);
 	HookConVarChange(g_hNotifyKey, Sub_ConVarsChanged);
+        HookConVarChange(g_hNotifyClass, Sub_ConVarsChanged);
+        HookConVarChange(g_hNotifyLock, Sub_ConVarsChanged);
 	HookConVarChange(g_hSelectDelay, Sub_ConVarsChanged);
 	HookConVarChange(g_hCooldownEnable, Sub_ConVarsChanged);
 	HookConVarChange(g_hCooldownSmoker, Sub_ConVarsChanged);
 	HookConVarChange(g_hCooldownBoomer, Sub_ConVarsChanged);
 	HookConVarChange(g_hCooldownHunter, Sub_ConVarsChanged);
 	HookConVarChange(g_hLockDelay, Sub_ConVarsChanged);
+        HookConVarChange(g_hSmokerLimit, Sub_ConVarsChanged);
+        HookConVarChange(g_hBoomerLimit, Sub_ConVarsChanged);
+        HookConVarChange(g_hHunterLimit, Sub_ConVarsChanged);
 
 	AutoExecConfig(true, PLUGIN_FILENAME);
 	Sub_ReloadConVars();
@@ -480,8 +505,18 @@ public Action:OnPlayerRunCmd(Client, &buttons, &impulse, Float:vel[3], Float:ang
 				{
 					g_bIsHoldingMelee[Client] = true;
 					g_bIsChanging[Client] = true;
-					new ZClass = GetEntProp(Client, Prop_Send, "m_zombieClass");
-					Sub_DetermineClass(Client, ZClass);
+
+					if (GetUserFlagBits(Client)&ReadFlagString(g_sAccessLevel) == 0 && StringToInt(g_sAccessLevel) != -1)
+					{
+						Sub_DebugPrint("[+] OPRC: (%N) does not have necessary access level to change class.", Client);
+					}
+
+					else
+					{
+						new ZClass = GetEntProp(Client, Prop_Send, "m_zombieClass");
+						Sub_DetermineClass(Client, ZClass);
+					}
+
 					CreateTimer(g_fSelectDelay, Timer_DelayChange, Client, TIMER_FLAG_NO_MAPCHANGE);
 				}
 			}
@@ -524,7 +559,8 @@ public Action:Timer_NotifyLock(Handle:hTimer, any:Client)
 {
 	if (IsClientInGame(Client) && !IsFakeClient(Client) && GetClientTeam(Client) == TEAM_INFECTED)
 	{
-		PrintToChat(Client, PLAYER_NOTIFY_LOCK, g_fLockDelay);
+		if (g_bNotifyLock)
+			PrintToChat(Client, PLAYER_NOTIFY_LOCK, g_fLockDelay);
 	}
 }
 
@@ -586,7 +622,9 @@ public Action:Timer_SwitchLock(Handle:hTimer, any:Client)
 	{
 		if (Sub_IsPlayerGhost(Client))
 		{
-			PrintToChat(Client, PLAYER_SWITCH_LOCK, g_fLockDelay);
+			if (g_bNotifyLock)
+				PrintToChat(Client, PLAYER_SWITCH_LOCK, g_fLockDelay);
+
 			g_bSwitchLock[Client] = true;
 		}
 	}
@@ -730,14 +768,20 @@ public Sub_ReloadConVars()
 	g_bAllowClassSwitch = GetConVarBool(g_hAllowClassSwitch);
 	g_bAllowCullSwitch = GetConVarBool(g_hAllowCullSwitch);
 	g_bAllowSpawnSwitch = GetConVarBool(g_hAllowSpawnSwitch);
+	GetConVarString(g_hAccessLevel, g_sAccessLevel, sizeof(g_sAccessLevel));
 	g_iSelectKey = GetConVarInt(g_hSelectKey);
 	g_bNotifyKey = GetConVarBool(g_hNotifyKey);
+	g_bNotifyClass = GetConVarBool(g_hNotifyClass);
+	g_bNotifyLock = GetConVarBool(g_hNotifyLock);
 	g_fSelectDelay = GetConVarFloat(g_hSelectDelay);
 	g_bCooldownEnable = GetConVarBool(g_hCooldownEnable);
 	g_fCooldownSmoker = GetConVarFloat(g_hCooldownSmoker);
 	g_fCooldownBoomer = GetConVarFloat(g_hCooldownBoomer);
 	g_fCooldownHunter = GetConVarFloat(g_hCooldownHunter);
 	g_fLockDelay = GetConVarFloat(g_hLockDelay);
+	g_iSmokerLimit = GetConVarInt(g_hSmokerLimit);
+	g_iBoomerLimit = GetConVarInt(g_hBoomerLimit);
+	g_iHunterLimit = GetConVarInt(g_hHunterLimit);
 }
 
 public Sub_ReloadLimits()
@@ -748,9 +792,9 @@ public Sub_ReloadLimits()
 		g_fClassDelay[i] = 0.0;
 	}
 
-	g_iZVLimits[ZC_SMOKER] = GetConVarInt(FindConVar("z_versus_smoker_limit"));
-	g_iZVLimits[ZC_BOOMER] = GetConVarInt(FindConVar("z_versus_boomer_limit"));
-	g_iZVLimits[ZC_HUNTER] = GetConVarInt(FindConVar("z_hunter_limit"));
+	g_iZVLimits[ZC_SMOKER] = g_iSmokerLimit != -1 ? g_iSmokerLimit : GetConVarInt(FindConVar("z_versus_smoker_limit"));
+	g_iZVLimits[ZC_BOOMER] = g_iBoomerLimit != -1 ? g_iBoomerLimit : GetConVarInt(FindConVar("z_versus_boomer_limit"));
+	g_iZVLimits[ZC_HUNTER] = g_iHunterLimit != -1 ? g_iHunterLimit : GetConVarInt(FindConVar("z_hunter_limit"));
 
 	for (new i = ZC_SMOKER; i <= ZC_HUNTER; i++)
 	{
@@ -922,9 +966,16 @@ public Sub_DetermineClass(any:Client, any:ZClass)
 			if (!Sub_CheckAllClassLimits(0))
 			{
 				if (ZTotal < g_iZVLimits[ZC_TOTAL])
-					PrintToChat(Client, PLAYER_COOLDOWN_WAIT, TEAM_CLASS(g_iLastClass[Client]), ZTotal, g_iZVLimits[ZC_TOTAL]);
+				{
+					if (g_bNotifyClass)
+						PrintToChat(Client, PLAYER_COOLDOWN_WAIT, TEAM_CLASS(g_iLastClass[Client]), ZTotal, g_iZVLimits[ZC_TOTAL]);
+				}
+
 				else
-					PrintToChat(Client, PLAYER_LIMITS_UP, ZTotal, g_iZVLimits[ZC_TOTAL]);
+				{
+					if (g_bNotifyClass)
+						PrintToChat(Client, PLAYER_LIMITS_UP, ZTotal, g_iZVLimits[ZC_TOTAL]);
+				}
 
 				Sub_DebugPrint("[+] S_DC: (%N) Player limits are up. (%d/%d)", Client, ZTotal, g_iZVLimits[ZC_TOTAL]);
 
@@ -983,7 +1034,9 @@ public Sub_CheckLastClass(any:Client, any:ZClass)
 		{
 			if (g_bAllowLastOnLimit)
 			{
-				PrintToChat(Client, PLAYER_CLASSES_UP_ALLOW);
+				if (g_bNotifyClass)
+					PrintToChat(Client, PLAYER_CLASSES_UP_ALLOW);
+
 				Sub_DebugPrint("[+] S_CLC: (%N) Player classes are up. Last class: %s allowed.", Client, TEAM_CLASS(g_iLastClass[Client]));
 				g_iSLastClass[Client] = g_iLastClass[Client];
 				g_iLastClass[Client] = 0;
@@ -993,7 +1046,9 @@ public Sub_CheckLastClass(any:Client, any:ZClass)
 
 			else
 			{
-				PrintToChat(Client, PLAYER_CLASSES_UP_DENY);
+				if (g_bNotifyClass)
+					PrintToChat(Client, PLAYER_CLASSES_UP_DENY);
+
 				Sub_DebugPrint("[+] S_CLC: (%N) Player classes are up. No more classes allowed.", Client);
 
 				return 1;
