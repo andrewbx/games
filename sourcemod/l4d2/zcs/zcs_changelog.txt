@@ -1,3 +1,20 @@
+-- 06/02/2010 - Version 0.8.1 (RELEASE)
+
+Improvements/Changes:
+
+* Stop class selection in finale stages (default is to allow).
+* Include fake bots into the limits.
+* Configurable user selection delay.
+
+CVAR's:
+
+zcs_respectlimits (0/1) - Honour z_versus limits (Def: 1)
+zcs_showhudpanel (0/1) - Show limit hud (Def: 0)
+zcs_countfakebots (0/1) - Include fake bots in limits (Def: 0)
+zcs_switchinfinale (0/1) - Allow class switch in finale (Def: 1)
+zcs_zcselectdelay (0.1-10.0) - Class select delay in (s) (Def: 0.5)
+
+
 -- 04/02/2010 - Version 0.8.0a (ALPHA)
 
 Improvements/Changes:

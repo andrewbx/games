@@ -1,12 +1,12 @@
-// Zombie Character Select 0.8.0a by XBetaAlpha
+// Zombie Character Select 0.8.1 by XBetaAlpha
 // Original Concept by Crimson_Fox
 // Modified & Tested for Use on [TS] 9v9 VS+ [UK]
-// Compiled on SoureMod 1.4.0-dev
+// Compiled on SourceMod 1.4.0-dev
 
 #include <sourcemod>
 #include <sdktools>
 
-#define PLUGIN_VERSION "0.8.0a"
+#define PLUGIN_VERSION "0.8.1"
 #define FCVAR_FLAGS FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD
 #define _DEBUG 0
 
@@ -27,17 +27,21 @@
 
 #define PLAYER_NOTIFY_DELAY 3.5
 #define PLAYER_MELEE_INGAME "\x04Press the MELEE key as ghost to change zombie class."
-#define TEAM_CLASS(%1)      (%1 == 1 ? "Smoker" : (%1 == 2 ? "Boomer" : (%1 == 3 ? "Hunter" :(%1 == 4 ? "Spitter" : (%1 == 5 ? "Jockey" : (%1 == 6 ? "Charger" : (%1 == 7 ? "Tanki" : "Unknown")))))))
+#define TEAM_CLASS(%1)      (%1 == 1 ? "Smoker" : (%1 == 2 ? "Boomer" : (%1 == 3 ? "Hunter" :(%1 == 4 ? "Spitter" : (%1 == 5 ? "Jockey" : (%1 == 6 ? "Charger" : (%1 == 7 ? "Tank" : "Unknown")))))))
 
 new Handle:g_hSetClass = INVALID_HANDLE;
 new Handle:g_hCreateAbility = INVALID_HANDLE;
 new Handle:g_hGameConf = INVALID_HANDLE;
 new Handle:g_hRespectLimits = INVALID_HANDLE;
 new Handle:g_hShowHudPanel = INVALID_HANDLE;
+new Handle:g_hCountFakeBots = INVALID_HANDLE;
+new Handle:g_hSwitchInFinale = INVALID_HANDLE;
+new Handle:g_hZCSelectDelay = INVALID_HANDLE;
 
 new bool:g_bIsHoldingMelee[MAXPLAYERS+1]
 new bool:g_bIsChanging[MAXPLAYERS+1]
 new bool:g_bRoundEnd;
+new bool:g_bSwitchDisabled;
 
 new g_iLastClass[MAXPLAYERS+1] = {1,...};
 new g_iNextClass[MAXPLAYERS+1] = {1,...};
@@ -47,7 +51,7 @@ new g_oAbility;
 public Plugin:myinfo =
 {
 	name = "Zombie Character Select",
-	author = "XBetaAlpha (Original Crimson_Fox)",
+	author = "XBetaAlpha -Original Crimson_Fox",
 	description = "Allows infected players to change zombie class in ghost mode.",
 	version = PLUGIN_VERSION,
 	url = "http://forums.alliedmods.net/showthread.php?p=1016671"
@@ -64,8 +68,13 @@ public OnPluginStart()
 	}
 
 	CreateConVar("zcs_version", PLUGIN_VERSION, "Zombie Character Select version.", FCVAR_FLAGS)
-	g_hRespectLimits = CreateConVar("zcs_respectlimits", "1", "Respect Director Limits.", FCVAR_PLUGIN);
-	g_hShowHudPanel = CreateConVar("zcs_showhudpanel", "0", "Display Infected Limits Panel.", FCVAR_PLUGIN);
+
+	g_hRespectLimits = CreateConVar("zcs_respectlimits", "1", "Respect Director Limits.", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	g_hShowHudPanel = CreateConVar("zcs_showhudpanel", "0", "Display Infected Limits Panel.", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	g_hCountFakeBots = CreateConVar("zcs_countfakebots", "0", "Count Fake Bots in Limits.", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+        g_hSwitchInFinale = CreateConVar("zcs_switchinfinale", "1", "Allow Class Switch in Finale.", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	g_hZCSelectDelay = CreateConVar("zcs_zcselectdelay", "0.5", "Zombie Class Switch Delay (s).", FCVAR_PLUGIN, true, 0.1, true, 10.0);
+
         g_hGameConf = LoadGameConfigFile("l4d2_zcs");
 
         if (g_hGameConf != INVALID_HANDLE)
@@ -81,9 +90,9 @@ public OnPluginStart()
 		PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
 		g_hCreateAbility = EndPrepSDKCall();
 
-                new _iPlatform = GameConfGetOffset(g_hGameConf, "Platform");
+                new Platform = GameConfGetOffset(g_hGameConf, "Platform");
 
-                if (_iPlatform == PLATFORM_WINDOWS)
+                if (Platform == PLATFORM_WINDOWS)
                         g_oAbility = 0x390;
                 else
                         g_oAbility = 0x3a4;
@@ -91,6 +100,7 @@ public OnPluginStart()
 
         HookEvent("round_start", Event_RoundStart);
         HookEvent("round_end", Event_RoundEnd);
+	HookEvent("finale_start", Event_FinaleStart);
         HookEvent("player_team", Event_PlayerTeam);
 	HookEvent("ghost_spawn_time", Event_GhostSpawnTime);
 }
@@ -111,11 +121,20 @@ public OnConfigsExecuted()
 public Action:Event_RoundStart(Handle:hEvent, const String:name[], bool:dontBroadcast)
 {
 	g_bRoundEnd = false;
+	g_bSwitchDisabled = false;
 }
 
 public Action:Event_RoundEnd(Handle:hEvent, const String:name[], bool:dontBroadcast)
 {
 	g_bRoundEnd = true;
+}
+
+public Action:Event_FinaleStart(Handle:hEvent, const String:name[], bool:dontBroadcast)
+{
+	if (GetConVarInt(g_hSwitchInFinale) == 0)
+		g_bSwitchDisabled = true;
+	else
+		g_bSwitchDisabled = false;
 }
 
 public Action:Event_PlayerTeam(Handle:hEvent, const String:name[], bool:dontBroadcast)
@@ -143,7 +162,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
 		return Plugin_Continue;
 	}
 
-	if (GetEntProp(client, Prop_Send, "m_isGhost") && !g_bRoundEnd)
+	if (GetEntProp(client, Prop_Send, "m_isGhost") && !g_bRoundEnd && !g_bSwitchDisabled)
 	{
 		if (buttons & IN_ATTACK2)
 		{
@@ -153,13 +172,9 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
 				g_bIsChanging[client] = true;
 
 				new ZClass = GetEntProp(client, Prop_Send, "m_zombieClass");
+				Sub_DetermineClass(client, ZClass);
 
-				if (GetConVarInt(g_hRespectLimits) == 1)
-					Sub_DetermineClass(client, ZClass, true);
-				else
-					Sub_DetermineClass(client, ZClass, false);
-
-				CreateTimer(1.0, Timer_DelayChange, client, TIMER_FLAG_NO_MAPCHANGE);
+				CreateTimer(GetConVarFloat(g_hZCSelectDelay), Timer_DelayChange, client, TIMER_FLAG_NO_MAPCHANGE);
 				Hud_ShowLimits(client);
 			}
 		}
@@ -203,10 +218,13 @@ public Action:Timer_DelayChange(Handle:hTimer, any:client)
 
 public Action:Timer_SpawnGhostClass(Handle:hTimer, any:client)
 {
-	if (client == 0 || !IsClientInGame(client))
+	if (client == 0 || !IsClientInGame(client) || IsFakeClient(client))
 		return Plugin_Continue;
 
 	if (!IsValidEntity(client) || !IsPlayerAlive(client) || GetClientTeam(client) != TEAM_INFECTED)
+		return Plugin_Continue;
+
+	if (!GetEntProp(client, Prop_Send, "m_isGhost"))
 		return Plugin_Continue;
 
 	new ZClass = GetEntProp(client, Prop_Send, "m_zombieClass");
@@ -216,10 +234,7 @@ public Action:Timer_SpawnGhostClass(Handle:hTimer, any:client)
 
 	if (ZClass == g_iLastClass[client])
 	{
-		if (GetConVarInt(g_hRespectLimits) == 1)
-			Sub_DetermineClass(client, ZClass, true)
-		else
-			Sub_DetermineClass(client, ZClass, false)
+		Sub_DetermineClass(client, ZClass);
 #if _DEBUG
 		LogMessage("[+] (%N) Zombie Class (Director: %s, Last: %s, Replaced: %s)", client, TEAM_CLASS(ZClass), TEAM_CLASS(g_iLastClass[client]), TEAM_CLASS(g_iNextClass[client]));
 #endif
@@ -232,6 +247,7 @@ public Action:Timer_SpawnGhostClass(Handle:hTimer, any:client)
 public Sub_CountInfected(any:ZClass, bool:GetCount)
 {
 	new ClassCount, ClassType;
+	new CountFakeBots = GetConVarInt(g_hCountFakeBots);
 
 	for (new i = 1; i <= MaxClients; i++)
 	{
@@ -243,8 +259,16 @@ public Sub_CountInfected(any:ZClass, bool:GetCount)
 
 				if (GetClientHealth(i) > 0)
 				{
-					if (ClassType == ZClass && !IsFakeClient(i))
-						ClassCount++;
+					if (ClassType == ZClass)
+					{
+						if (CountFakeBots == 0)
+						{
+							if (!IsFakeClient(i))
+								ClassCount++;
+						}
+						else
+							ClassCount++;
+					}
 				}
 			}
 		}
@@ -259,7 +283,7 @@ public Sub_CountInfected(any:ZClass, bool:GetCount)
 	return false;
 }
 
-public Sub_DetermineClass(any:client, any:ZClass, bool:GetLimits)
+public Sub_DetermineClass(any:client, any:ZClass)
 {
 	switch (ZClass)
 	{
@@ -271,7 +295,7 @@ public Sub_DetermineClass(any:client, any:ZClass, bool:GetLimits)
 		case ZC_CHARGER: g_iNextClass[client] = ZC_SMOKER;
 	}
 
-	if (GetLimits)
+	if (GetConVarInt(g_hRespectLimits) == 1)
 	{
 		for (new i = ZC_SMOKER; i <= ZC_CHARGER; i++)
 		{
