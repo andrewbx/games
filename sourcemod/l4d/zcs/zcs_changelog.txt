@@ -8,3 +8,278 @@ CVAR's
 Check l4d(2)_zcs_cvars.txt for more information on new CVAR's. Be sure to clear
 your existing configuration file when updating. Best method: Delete .cfg file
 then restart server.
+
+
+-- 16/08/2013 - Version 0.9.5 (RELEASE - L4D1/L4D2)
+
+* Fix flag permissions (Thanks Atomic)
+* Update Signatures for latest Update (Thanks to contributors)
+* Fix player notification on flag permission
+* Prevent changing class if only one available
+
+Extra thanks goes out to those who gave up some of their time to fix things in
+my absence. Gotta love the sourcemod community!
+
+CVAR's
+
+Check l4d(2)_zcs_cvars.txt for more information on new CVAR's. Be sure to clear
+your existing configuration file when updating. Best method: Delete .cfg file
+then restart server.
+
+-- 05/12/2010 - Version 0.9.4 (RELEASE - L4D1/L4D2)
+
+* HookChange server limit CVARS. (To ensure limits/total are updated if other plugins change them on start/mid game)
+
+CVAR's
+
+Check l4d(2)_zcs_cvars.txt for more information on new CVAR's. Be sure to clear
+your existing configuration file when updating. Best method: Delete .cfg file
+then restart server.
+
+
+-- 03/12/2010 - Version 0.9.3 (RELEASE - L4D1)
+
+* Port L4D2 0.9.3 changes to L4D1.
+
+CVAR's
+
+zcs_notify_key_verbose (0/1) - Notify first time/every time ghost.
+
+Check l4d2_zcs_cvars.txt for more information on new CVAR's. Be sure to clear
+your existing configuration file when updating. Best method: Delete .cfg file
+then restart server.
+
+
+-- 26/11/2010 - Version 0.9.3 (RELEASE - L4D2)
+
+* OnMapStart replaces OnConfigsExecuted. (Temperamental with sb_all_bot_game 0)
+* Delayed ghost check on player team change. (Seems valve delay this if instant ghost spawned)
+* Bug introduced with manual limits fixed. (Also related to delayed ghost check)
+* Double check player is ghost instantly before SetClass call. (Potential fix for untimely spawns from other plugins)
+* AdminFlag(s)/String check moved to OnClientPutInServer. (Expensive in OnPlayerRunCmd. MapChange will update flags)
+* Reduce some timer delays.
+* Slight code improvements.
+
+CVAR's
+
+zcs_enable_vib (0/1) - Enable/Disable Valve Infected Bots.
+zcs_notify_key_verbose (0/1) - Notify first time/every time ghost.
+
+Check l4d2_zcs_cvars.txt for more information on new CVAR's. Be sure to clear
+your existing configuration file when updating. Best method: Delete .cfg file
+then restart server.
+
+
+-- 04/11/2010 - Version 0.9.2 (RELEASE - L4D1)
+
+Improvements/Changes:
+
+* Port L4D2 0.9.2 changes to L4D1.
+
+CVAR's
+
+Check l4d2_zcs_cvars.txt for more information on new CVAR's. Be sure to clear
+your existing configuration file when updating. Best method: Delete .cfg file
+then restart server.
+
+
+-- 23/10/2010 - Version 0.9.2 (RELEASE - L4D2)
+
+Improvements/Changes:
+
+* Configurable access levels to restrict class change. (Up to 8 flags ie "abcdefgz")
+* All chat messages can be silenced. (Configurable in 3 Notify CVAR's)
+* Configurable limits for each special infected. (If set, server limits are ignored)
+
+CVAR's
+
+Check l4d2_zcs_cvars.txt for more information on new CVAR's. Be sure to clear
+your existing configuration file when updating. Best method: Delete .cfg file
+then restart server.
+
+
+-- 16/10/2010 - Version 0.9.1 (RELEASE - L4D1)
+
+* Port L4D2 code over to L4D1.
+* Update L4D1 Signature File & Offset (Linux & Windows).
+
+CVAR's
+
+Check l4d2_zcs_cvars.txt for more information. Be sure to clear your existing
+configuration file when updating. Best method: Delete .cfg file, then restart
+server.
+
+
+-- 10/10/2010 - Version 0.9.1 (RELEASE - L4D2)
+
+Improvements/Changes:
+
+* Fixed CreateAbility crash. (Found by MarshalZCC)
+* Implemented changeable GetEntData Offset in gamedata.
+
+CVAR's
+
+Check l4d2_zcs_cvars.txt for more information. Be sure to clear your existing
+configuration file when updating. Best method: Delete .cfg file, then restart
+server.
+
+
+-- 06/04/2010 - Version 0.9.0 (RELEASE)
+
+Improvements/Changes:
+
+* Implemented configurable delays per infected class. (Suggested by ne0cha0s)
+* Changed CVAR zcs_switch_in_finale to zcs_allow_finale_switch.
+* Removed CVAR zcs_cooldown_delay in favour of seperate infected delays.
+* Fixed Smoker intermittently bypassing last class check. (Found by ne0cha0s)
+* Fixed HUD display not always showing at Map Start. (Found by ne0cha0s)
+* Removed DONTRECORD from version CVAR as Linux servers are not reporting version.
+* Changed player notification descriptions. (More brief and to the point)
+* Minor class check improvements.
+
+CVAR's
+
+Check l4d2_zcs_cvars.txt for more information. Be sure to clear your existing
+configuration file when updating. Best method: Delete .cfg file, then restart
+server.
+
+
+-- 21/03/2010 - Version 0.8.9 (RELEASE)
+
+Improvements/Changes:
+
+* Can now enable/disable infected class selection whilst keeping ghost spawn fix.
+* Version CVAR no longer records to config file. (Suggested by Crimson_Fox)
+* PlayerSpawn event now used for more reliable timer closing.
+* Removed bot limits from HUD.
+* Use handle on ghostspawn timer for better control. (Creating/Closing)
+* Fix minor closehandle errors when using class lock delay timer.
+* UserID back to ClientID. (For now)
+* Cooldown CVAR's have more descriptive text. (Suggested by Thraka)
+* Minor cleanups.
+
+CVAR's
+
+Check l4d2_zcs_cvars.txt for more information. Be sure to clear your existing
+configuration file when updating.
+
+
+-- 14/03/2010 - Version 0.8.8 (RELEASE)
+
+Improvements/Changes:
+
+* Added ZOOM key as a key binding option.
+* Class selection when too far away from survivors is now configurable.
+* Class selection when returning to ghost from spawn is now configurable.
+* Plugin enable/disable is now configurable.
+* Debug logging is now configurable.
+* Renamed some CVAR's (again - for consistency).
+* HUD remains on a 1 second refresh but only displayed when ghost.
+* Ghost spawn timer has a further check for IsPlayerAlive before activating.
+* Added RoundEnd checks before CloseHandle on class lock timer.
+* Class selection key bind notification can now be enabled/disabled.
+* Improvements to Plugin Load/SDK Load & Event Hooking.
+* Longer timers (Class Lock/Ghost Spawn) are now passed with UserID.
+
+CVAR's
+
+Check l4d2_zcs_cvars.txt for more information.
+
+
+-- 02/03/2010 - Version 0.8.7b (BETA)
+
+Improvements/Changes:
+
+* Intercept class check on Tank frustration event.
+* Ensure edicts are removed on RemovePlayerItem.
+* Implement infected class cooldown (uses director spawn time as default).
+* HUD updated to reflect class cooldown ((C) indicates cooldown in effect for infected).
+* HUD currently on a 1 second refresh timer initiated on round start (for TESTING purposes).
+* Class loop determination back to old mechanics & temporary timers removed (improves responsiveness while changing).
+* Class timer lock & materialisation check for player wasn't cleared if they disconnect - fixed.
+* Removed GetClientHealth checks and reverted to IsPlayerAlive.
+* Renamed all CVAR's - more readable.
+* Debug rewrite & various code optimisations.
+
+CVAR's
+
+NOTE: Check l4d2_zcs_cvars.txt for a full list of CVARS and their description. As it stands, this
+version is frozen for any new feature requests. This is released for testing in order to fix any
+outstanding issues that arise before it's considered stable. Many features are configurable now
+so it's up to the server admin to find the right balance, avoiding any shortage of classes.
+
+
+-- 20/02/2010 - Version 0.8.5b (BETA)
+
+Improvements/Changes:
+
+* Extra tank check (if possibly ghosted) (Melee/Limit stage)
+* Class change disabled when infected are marked "Too far away from survivors".
+* Class change disabled if played once before returning to ghost from being too far away.
+* Last class allow when limits are up is now configurable.
+* New configurable timeout before class change is locked. (EXPERIMENTAL).
+* Removed USE from list of available selection keys.
+* Various cleanups.
+
+CVAR's
+
+zcs_allowlastonlimit (0/1) - Allow last class if limits are up (Def: 0)
+zcs_zclockdelay (0-600) - Time in (s) before class changing is locked (0=DISABLE) (Def: 60)
+
+
+-- 16/02/2010 - Version 0.8.3b (BETA)
+
+Improvements/Changes:
+
+* Add last class check functionality.
+* Configurable select key binding.
+* Various code improvements/delay changes.
+
+CVAR's
+
+zcs_allowlastclass (0/1) - Last class check (0=Don't Allow, 1=Allow) (Def: 0)
+zcs_zcselectkey (1/2/3) - Select key bind (1=MELEE, 2=RELOAD, 3=USE) (Def: 1)
+
+
+-- 11/02/2010 - Version 0.8.2 (RELEASE)
+
+Improvements/Changes:
+
+* Add standard infected (z_*_limit) limits into HUD.
+* Fix Smoker Bug (happens at low limits).
+* Update limit checking and add failsafe for misconfigured limits.
+
+
+-- 06/02/2010 - Version 0.8.1 (RELEASE)
+
+Improvements/Changes:
+
+* Stop class selection in finale stages (default is to allow).
+* Include fake bots into the limits.
+* Configurable user selection delay.
+
+CVAR's:
+
+zcs_respectlimits (0/1) - Honour z_versus limits (Def: 1)
+zcs_showhudpanel (0/1) - Show limit hud (Def: 0)
+zcs_countfakebots (0/1) - Include fake bots in limits (Def: 0)
+zcs_switchinfinale (0/1) - Allow class switch in finale (Def: 1)
+zcs_zcselectdelay (0.1-10.0) - Class select delay in (s) (Def: 0.5)
+
+
+-- 04/02/2010 - Version 0.8.0a (ALPHA)
+
+Improvements/Changes:
+
+* Smoother infected class change - You can change class on the move.
+* Ghost Spawn fix - No more constant class more than x times in a row. It is similar to the infected spawn fix by V10.
+* Limits are respected on class selection and ghost spawn (configurable).
+* In respect to the above (If Limits are not chosen you can select any class you wish anytime - in sequence with the Zombie Class cycle).
+* 1 second delay between changes and change is disabled on RoundEnd.
+* I removed the finale check so you can change on finale also.
+* I removed the l4dtoolz/forced ghost spawn check simply because some may want to keep autospawn in finales but change class during normal play.
+
+CVAR's
+
+zcs_respectlimits (0/1) - Honour z_versus limits (Def: 1)
+zcs_showhudpanel (0/1) - Show limit hud (Def: 0)
