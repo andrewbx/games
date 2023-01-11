@@ -4,10 +4,10 @@
 	{
 		"Offsets"
 		{
-			"Platform"
+			"oAbility"
 			{
-				"windows"	"1"
-				"linux"		"2"
+				"windows"	"916"
+				"linux"		"936"
 			}
 		}
 

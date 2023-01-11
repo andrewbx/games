@@ -1,7 +1,7 @@
 /**
  * vim: set ts=4 :
  * =============================================================================
- * Zombie Character Select 0.9.0 by XBetaAlpha
+ * Zombie Character Select 0.9.1 by XBetaAlpha
  *
  * Allows a player on the infected team to change their infected class.
  * Based on the original Infected Character Select by Crimson_Fox.
@@ -41,7 +41,7 @@
 #define PLUGIN_NAME		"Zombie Character Select"
 #define PLUGIN_AUTHOR		"XBetaAlpha"
 #define PLUGIN_DESC		"Allows infected team players to change their class in ghost mode. (Versus Only)"
-#define PLUGIN_VERSION		"0.9.0"
+#define PLUGIN_VERSION		"0.9.1"
 #define PLUGIN_URL		"http://dev.andrewx.net/sm/zcs"
 #define PLUGIN_FILENAME		"l4d2_zcs"
 
@@ -66,9 +66,6 @@
 #define TEAM_SPECTATORS		1
 #define TEAM_SURVIVORS		2
 #define TEAM_INFECTED		3
-
-#define PLATFORM_WINDOWS	1
-#define PLATFORM_LINUX		2
 
 #define PLAYER_HUD_DELAY	1
 #define PLAYER_KEY_DELAY	3
@@ -812,16 +809,7 @@ public Sub_HookGameData(String:GameDataFile[])
 		if (g_hCreateAbility == INVALID_HANDLE)
 			SetFailState("[+] S_HGD: Error: Unable to find CreateAbility signature.");
 
-		new Platform = GameConfGetOffset(g_hGameConf, "Platform");
-
-		if (Platform == PLATFORM_WINDOWS)
-			g_oAbility = 0x390;
-		else
-
-		if (Platform == PLATFORM_LINUX)
-			g_oAbility = 0x3a4;
-		else
-			SetFailState("[+] S_HGD: Error: Could not determine platform.");
+		g_oAbility = GameConfGetOffset(g_hGameConf, "oAbility");
 
 		CloseHandle(g_hGameConf);
 	}
