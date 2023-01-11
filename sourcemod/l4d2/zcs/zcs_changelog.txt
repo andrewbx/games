@@ -1,3 +1,25 @@
+-- 14/03/2010 - Version 0.8.8 (RELEASE)
+
+Improvements/Changes:
+
+* Added ZOOM key as a key binding option.
+* Class selection when too far away from survivors is now configurable.
+* Class selection when returning to ghost from spawn is now configurable.
+* Plugin enable/disable is now configurable.
+* Debug logging is now configurable.
+* Renamed some CVAR's (again - for consistency).
+* HUD remains on a 1 second refresh but only displayed when ghost.
+* Ghost spawn timer has a further check for IsPlayerAlive before activating.
+* Added RoundEnd checks before CloseHandle on class lock timer.
+* Class selection key bind notification can now be enabled/disabled.
+* Improvements to Plugin Load/SDK Load & Event Hooking.
+* Longer timers (Class Lock/Ghost Spawn) are now passed with UserID.
+
+CVAR's
+
+Check l4d2_zcs_cvars.txt for more information.
+
+
 -- 02/03/2010 - Version 0.8.7b (BETA)
 
 Improvements/Changes:
