@@ -1,3 +1,23 @@
+-- 26/11/2010 - Version 0.9.3 (RELEASE - L4D2)
+
+* OnMapStart replaces OnConfigsExecuted. (Temperamental with sb_all_bot_game 0)
+* Delayed ghost check on player team change. (Seems valve delay this if instant ghost spawned)
+* Bug introduced with manual limits fixed. (Also related to delayed ghost check)
+* Double check player is ghost instantly before SetClass call. (Potential fix for untimely spawns from other plugins)
+* AdminFlag(s)/String check moved to OnClientPutInServer. (Expensive in OnPlayerRunCmd. MapChange will update flags)
+* Reduce some timer delays.
+* Slight code improvements.
+
+CVAR's
+
+zcs_enable_vib (0/1) - Enable/Disable Valve Infected Bots.
+zcs_notify_key_verbose (0/1) - Notify first time/every time ghost.
+
+Check l4d2_zcs_cvars.txt for more information on new CVAR's. Be sure to clear
+your existing configuration file when updating. Best method: Delete .cfg file
+then restart server.
+
+
 -- 23/10/2010 - Version 0.9.2 (RELEASE - L4D2)
 
 Improvements/Changes:
