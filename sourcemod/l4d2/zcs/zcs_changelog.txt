@@ -1,3 +1,17 @@
+-- 16/02/2010 - Version 0.8.3b (BETA)
+
+Improvements/Changes:
+
+* Add last class check functionality.
+* Configurable select key binding.
+* Various code improvements/delay changes.
+
+CVAR's
+
+zcs_allowlastclass (0/1) - Last class check (0=Don't Allow, 1=Allow) (Def: 0)
+zcs_zcselectkey (1/2/3) - Select key bind (1=MELEE, 2=RELOAD, 3=USE) (Def: 1)
+
+
 -- 11/02/2010 - Version 0.8.2 (RELEASE)
 
 Improvements/Changes:
