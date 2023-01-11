@@ -1,12 +1,12 @@
 /**
  * vim: set ts=4 :
  * =============================================================================
- * Zombie Character Select 0.9.4-L4D2 by XBetaAlpha
+ * Zombie Character Select 0.9.5-L4D2 by XBetaAlpha
  *
  * Allows a player on the infected team to change their infected class.
  * Complete rewrite based on the Infected Character Select idea by Crimson_Fox.
  *
- * SourceMod (C)2004-2010 AlliedModders LLC.  All rights reserved.
+ * SourceMod (C)2004-2013 AlliedModders LLC.  All rights reserved.
  * =============================================================================
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -41,7 +41,7 @@
 #define PLUGIN_NAME		"Zombie Character Select"
 #define PLUGIN_AUTHOR		"XBetaAlpha"
 #define PLUGIN_DESC		"Allows infected team players to change their class in ghost mode. (Versus Only)"
-#define PLUGIN_VERSION		"0.9.4"
+#define PLUGIN_VERSION		"0.9.5"
 #define PLUGIN_URL		"http://dev.andrewx.net/sm/zcs"
 #define PLUGIN_FILENAME		"l4d2_zcs"
 
@@ -60,8 +60,8 @@
 #define ZC_TOTAL		7
 #define ZC_LIMITSIZE		ZC_TOTAL + 1
 #define ZC_INDEXSIZE		ZC_TOTAL + 3
-#define ZC_TIMEROFFSET		0.5
-#define ZC_TIMERDEATHCHECK	0.05
+#define ZC_TIMEROFFSET		0.8
+#define ZC_TIMERDEATHCHECK	0.01
 #define ZC_TIMERAFTERTANK	0.01
 #define	ZC_TIMERCHECKGHOST	0.1
 
@@ -230,7 +230,7 @@ public OnPluginStart()
 	g_hAllowClassSwitch	= CreateConVar("zcs_allow_class_switch", "1", "Allow player to change their infected class.", FCVAR_PLUGIN);
 	g_hAllowCullSwitch	= CreateConVar("zcs_allow_cull_switch", "0", "Allow player to select class when out of range of survivors.", FCVAR_PLUGIN);
 	g_hAllowSpawnSwitch	= CreateConVar("zcs_allow_spawn_switch", "0", "Allow player to select class after returning to ghost from spawn.", FCVAR_PLUGIN);
-	g_hAccessLevel		= CreateConVar("zcs_access_level", "-1", "Access level required to change class. (Up to 8 flags, -1=Disable - All Users Allowed)", FCVAR_PLUGIN);
+	g_hAccessLevel		= CreateConVar("zcs_access_level", "-1", "Access level required to change class. (Up to 8 flags (Admin already allowed), -1=Disable - All Users Allowed)", FCVAR_PLUGIN);
 	g_hSelectKey		= CreateConVar("zcs_select_key", "1", "Key binding for infected class selection. (1=MELEE, 2=RELOAD, 3=ZOOM)", FCVAR_PLUGIN, true, 1.0, true, 3.0);
 	g_hSelectDelay		= CreateConVar("zcs_select_delay", "0.5", "Infected class switch delay in (s).", FCVAR_PLUGIN, true, 0.1, true, 10.0);
 	g_hNotifyKey		= CreateConVar("zcs_notify_key", "1", "Broadcast infected class selection key binding to players.", FCVAR_PLUGIN);
@@ -317,17 +317,24 @@ public OnClientDisconnect(Client)
 	g_bUserFlagsCheck[Client] = false;
 }
 
-public OnClientPutInServer(Client)
+public OnClientPostAdminCheck(Client)
 {
 	if (IsFakeClient(Client))
 		return;
 
-	if (GetUserFlagBits(Client)&ReadFlagString(g_sAccessLevel) == 0 && StringToInt(g_sAccessLevel) != -1)
-		g_bUserFlagsCheck[Client] = true;
-	else
+	g_iNotifyKeyVerbose[Client] = 0;
+
+	if (StrEqual(g_sAccessLevel, "-1"))
 		g_bUserFlagsCheck[Client] = false;
 
-	g_iNotifyKeyVerbose[Client] = 0;
+	else
+	{
+		if ((GetUserFlagBits(Client) & ADMFLAG_ROOT) || (GetUserFlagBits(Client) & ReadFlagString(g_sAccessLevel)))
+			g_bUserFlagsCheck[Client] = false;
+
+		else
+			g_bUserFlagsCheck[Client] = true;
+	}
 }
 
 public Action:Event_RoundStart(Handle:hEvent, const String:name[], bool:dontBroadcast)
@@ -607,7 +614,7 @@ public Action:Timer_NotifyKey(Handle:hTimer, any:Client)
 {
 	if (IsClientInGame(Client) && !IsFakeClient(Client) && GetClientTeam(Client) == TEAM_INFECTED)
 	{
-		if (g_bNotifyKey)
+		if (g_bNotifyKey && !g_bUserFlagsCheck[Client])
 			PrintToChat(Client, PLAYER_NOTIFY_KEY, PLAYER_KEYS(g_iSelectKey));
 	}
 }
@@ -616,7 +623,7 @@ public Action:Timer_NotifyLock(Handle:hTimer, any:Client)
 {
 	if (IsClientInGame(Client) && !IsFakeClient(Client) && GetClientTeam(Client) == TEAM_INFECTED)
 	{
-		if (g_bNotifyLock)
+		if (g_bNotifyLock && !g_bUserFlagsCheck[Client])
 			PrintToChat(Client, PLAYER_NOTIFY_LOCK, g_fLockDelay);
 	}
 }
@@ -1118,6 +1125,16 @@ public Sub_DetermineClass(any:Client, any:ZClass)
 				Sub_DebugPrint("[+] S_DC: (%N) Looping as (%s) is over limit.", Client, TEAM_CLASS(g_iNextClass[Client]));
 		}
 		while (!Sub_CheckPerClassLimits(g_iNextClass[Client]));
+	}
+
+	if (ZClass == g_iNextClass[Client])
+	{
+		if (g_bNotifyClass)
+			PrintToChat(Client, PLAYER_CLASSES_UP_DENY);
+
+		Sub_DebugPrint("[+] S_DC: (%N) Zombie Class %s is the only class available at this time.", Client, TEAM_CLASS(ZClass));
+
+		return;
 	}
 
 	if (Sub_IsPlayerGhost(Client))

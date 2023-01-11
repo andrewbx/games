@@ -1,3 +1,19 @@
+-- 16/08/2013 - Version 0.9.5 (RELEASE - L4D1/L4D2)
+
+* Fix flag permissions (Thanks Atomic)
+* Update Signatures for latest Update (Thanks to contributors)
+* Fix player notification on flag permission
+* Prevent changing class if only one available
+
+Extra thanks goes out to those who gave up some of their time to fix things in
+my absence. Gotta love the sourcemod community!
+
+CVAR's
+
+Check l4d(2)_zcs_cvars.txt for more information on new CVAR's. Be sure to clear
+your existing configuration file when updating. Best method: Delete .cfg file
+then restart server.
+
 -- 05/12/2010 - Version 0.9.4 (RELEASE - L4D1/L4D2)
 
 * HookChange server limit CVARS. (To ensure limits/total are updated if other plugins change them on start/mid game)
