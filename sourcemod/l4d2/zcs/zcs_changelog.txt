@@ -1,3 +1,21 @@
+-- 20/02/2010 - Version 0.8.5b (BETA)
+
+Improvements/Changes:
+
+* Extra tank check (if possibly ghosted) (Melee/Limit stage)
+* Class change disabled when infected are marked "Too far away from survivors".
+* Class change disabled if played once before returning to ghost from being too far away.
+* Last class allow when limits are up is now configurable.
+* New configurable timeout before class change is locked. (EXPERIMENTAL).
+* Removed USE from list of available selection keys.
+* Various cleanups.
+
+CVAR's
+
+zcs_allowlastonlimit (0/1) - Allow last class if limits are up (Def: 0)
+zcs_zclockdelay (0-600) - Time in (s) before class changing is locked (0=DISABLE) (Def: 60)
+
+
 -- 16/02/2010 - Version 0.8.3b (BETA)
 
 Improvements/Changes:
