@@ -1,3 +1,12 @@
+-- 11/02/2010 - Version 0.8.2 (RELEASE)
+
+Improvements/Changes:
+
+* Add standard infected (z_*_limit) limits into HUD.
+* Fix Smoker Bug (happens at low limits).
+* Update limit checking and add failsafe for misconfigured limits.
+
+
 -- 06/02/2010 - Version 0.8.1 (RELEASE)
 
 Improvements/Changes:
