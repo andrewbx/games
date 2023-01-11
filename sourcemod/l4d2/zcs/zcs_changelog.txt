@@ -1,3 +1,23 @@
+-- 06/04/2010 - Version 0.9.0 (RELEASE)
+
+Improvements/Changes:
+
+* Implemented configurable delays per infected class. (Suggested by ne0cha0s)
+* Changed CVAR zcs_switch_in_finale to zcs_allow_finale_switch.
+* Removed CVAR zcs_cooldown_delay in favour of seperate infected delays.
+* Fixed Smoker intermittently bypassing last class check. (Found by ne0cha0s)
+* Fixed HUD display not always showing at Map Start. (Found by ne0cha0s)
+* Removed DONTRECORD from version CVAR as Linux servers are not reporting version.
+* Changed player notification descriptions. (More brief and to the point)
+* Minor class check improvements.
+
+CVAR's
+
+Check l4d2_zcs_cvars.txt for more information. Be sure to clear your existing
+configuration file when updating. Best method: Delete .cfg file, then restart
+server.
+
+
 -- 21/03/2010 - Version 0.8.9 (RELEASE)
 
 Improvements/Changes:
