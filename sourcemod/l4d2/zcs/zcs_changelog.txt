@@ -1,3 +1,26 @@
+-- 02/03/2010 - Version 0.8.7b (BETA)
+
+Improvements/Changes:
+
+* Intercept class check on Tank frustration event.
+* Ensure edicts are removed on RemovePlayerItem.
+* Implement infected class cooldown (uses director spawn time as default).
+* HUD updated to reflect class cooldown ((C) indicates cooldown in effect for infected).
+* HUD currently on a 1 second refresh timer initiated on round start (for TESTING purposes).
+* Class loop determination back to old mechanics & temporary timers removed (improves responsiveness while changing).
+* Class timer lock & materialisation check for player wasn't cleared if they disconnect - fixed.
+* Removed GetClientHealth checks and reverted to IsPlayerAlive.
+* Renamed all CVAR's - more readable.
+* Debug rewrite & various code optimisations.
+
+CVAR's
+
+NOTE: Check l4d2_zcs_cvars.txt for a full list of CVARS and their description. As it stands, this
+version is frozen for any new feature requests. This is released for testing in order to fix any
+outstanding issues that arise before it's considered stable. Many features are configurable now
+so it's up to the server admin to find the right balance, avoiding any shortage of classes.
+
+
 -- 20/02/2010 - Version 0.8.5b (BETA)
 
 Improvements/Changes:
