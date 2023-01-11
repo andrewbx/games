@@ -1,0 +1,10 @@
+-- 16/10/2010 - Version 0.9.1 (RELEASE - L4D1)
+
+* Port L4D2 code over to L4D1.
+* Update L4D1 Signature File & Offset (Linux & Windows).
+
+CVAR's
+
+Check l4d2_zcs_cvars.txt for more information. Be sure to clear your existing
+configuration file when updating. Best method: Delete .cfg file, then restart
+server.
