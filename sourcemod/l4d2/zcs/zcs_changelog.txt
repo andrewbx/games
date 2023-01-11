@@ -1,0 +1,16 @@
+-- 04/02/2010 - Version 0.8.0a (ALPHA)
+
+Improvements/Changes:
+
+* Smoother infected class change - You can change class on the move.
+* Ghost Spawn fix - No more constant class more than x times in a row. It is similar to the infected spawn fix by V10.
+* Limits are respected on class selection and ghost spawn (configurable).
+* In respect to the above (If Limits are not chosen you can select any class you wish anytime - in sequence with the Zombie Class cycle).
+* 1 second delay between changes and change is disabled on RoundEnd.
+* I removed the finale check so you can change on finale also.
+* I removed the l4dtoolz/forced ghost spawn check simply because some may want to keep autospawn in finales but change class during normal play.
+
+CVAR's
+
+zcs_respectlimits (0/1) - Honour z_versus limits (Def: 1)
+zcs_showhudpanel (0/1) - Show limit hud (Def: 0)
