@@ -1,7 +1,7 @@
 /**
  * vim: set ts=4 :
  * =============================================================================
- * Zombie Character Select 0.9.3 by XBetaAlpha
+ * Zombie Character Select 0.9.4-L4D1 by XBetaAlpha
  *
  * Allows a player on the infected team to change their infected class.
  * Complete rewrite based on the Infected Character Select idea by Crimson_Fox.
@@ -41,7 +41,7 @@
 #define PLUGIN_NAME		"Zombie Character Select"
 #define PLUGIN_AUTHOR		"XBetaAlpha"
 #define PLUGIN_DESC		"Allows infected team players to change their class in ghost mode. (Versus Only)"
-#define PLUGIN_VERSION		"0.9.3"
+#define PLUGIN_VERSION		"0.9.4"
 #define PLUGIN_URL		"http://dev.andrewx.net/sm/zcs"
 #define PLUGIN_FILENAME		"l4d_zcs"
 
@@ -251,6 +251,10 @@ public OnPluginStart()
 	HookConVarChange(g_hSmokerLimit, Sub_ConVarsChanged);
 	HookConVarChange(g_hBoomerLimit, Sub_ConVarsChanged);
 	HookConVarChange(g_hHunterLimit, Sub_ConVarsChanged);
+
+	HookConVarChange(FindConVar(CVAR_Z_VS_SMOKER_LIMIT), Sub_ConVarsChanged);
+	HookConVarChange(FindConVar(CVAR_Z_VS_BOOMER_LIMIT), Sub_ConVarsChanged);
+	HookConVarChange(FindConVar(CVAR_Z_VS_HUNTER_LIMIT), Sub_ConVarsChanged);
 
 	AutoExecConfig(true, PLUGIN_FILENAME);
 	Sub_ReloadConVars();
