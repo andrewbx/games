@@ -1,3 +1,23 @@
+-- 21/03/2010 - Version 0.8.9 (RELEASE)
+
+Improvements/Changes:
+
+* Can now enable/disable infected class selection whilst keeping ghost spawn fix.
+* Version CVAR no longer records to config file. (Suggested by Crimson_Fox)
+* PlayerSpawn event now used for more reliable timer closing.
+* Removed bot limits from HUD.
+* Use handle on ghostspawn timer for better control. (Creating/Closing)
+* Fix minor closehandle errors when using class lock delay timer.
+* UserID back to ClientID. (For now)
+* Cooldown CVAR's have more descriptive text. (Suggested by Thraka)
+* Minor cleanups.
+
+CVAR's
+
+Check l4d2_zcs_cvars.txt for more information. Be sure to clear your existing
+configuration file when updating.
+
+
 -- 14/03/2010 - Version 0.8.8 (RELEASE)
 
 Improvements/Changes:
