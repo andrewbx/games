@@ -1,10 +1,10 @@
 /**
  * vim: set ts=4 :
  * =============================================================================
- * Zombie Character Select 0.9.3 by XBetaAlpha
+ * Zombie Character Select 0.9.4-L4D2 by XBetaAlpha
  *
  * Allows a player on the infected team to change their infected class.
- * Based on the original Infected Character Select by Crimson_Fox.
+ * Complete rewrite based on the Infected Character Select idea by Crimson_Fox.
  *
  * SourceMod (C)2004-2010 AlliedModders LLC.  All rights reserved.
  * =============================================================================
@@ -41,7 +41,7 @@
 #define PLUGIN_NAME		"Zombie Character Select"
 #define PLUGIN_AUTHOR		"XBetaAlpha"
 #define PLUGIN_DESC		"Allows infected team players to change their class in ghost mode. (Versus Only)"
-#define PLUGIN_VERSION		"0.9.3"
+#define PLUGIN_VERSION		"0.9.4"
 #define PLUGIN_URL		"http://dev.andrewx.net/sm/zcs"
 #define PLUGIN_FILENAME		"l4d2_zcs"
 
@@ -60,7 +60,7 @@
 #define ZC_TOTAL		7
 #define ZC_LIMITSIZE		ZC_TOTAL + 1
 #define ZC_INDEXSIZE		ZC_TOTAL + 3
-#define ZC_TIMEROFFSET		0.2
+#define ZC_TIMEROFFSET		0.5
 #define ZC_TIMERDEATHCHECK	0.05
 #define ZC_TIMERAFTERTANK	0.01
 #define	ZC_TIMERCHECKGHOST	0.1
@@ -285,6 +285,13 @@ public OnPluginStart()
 	HookConVarChange(g_hSpitterLimit, Sub_ConVarsChanged);
 	HookConVarChange(g_hJockeyLimit, Sub_ConVarsChanged);
 	HookConVarChange(g_hChargerLimit, Sub_ConVarsChanged);
+
+	HookConVarChange(FindConVar(CVAR_Z_VS_SMOKER_LIMIT), Sub_ConVarsChanged);
+	HookConVarChange(FindConVar(CVAR_Z_VS_BOOMER_LIMIT), Sub_ConVarsChanged);
+	HookConVarChange(FindConVar(CVAR_Z_VS_HUNTER_LIMIT), Sub_ConVarsChanged);
+	HookConVarChange(FindConVar(CVAR_Z_VS_SPITTER_LIMIT), Sub_ConVarsChanged);
+	HookConVarChange(FindConVar(CVAR_Z_VS_JOCKEY_LIMIT), Sub_ConVarsChanged);
+	HookConVarChange(FindConVar(CVAR_Z_VS_CHARGER_LIMIT), Sub_ConVarsChanged);
 
 	AutoExecConfig(true, PLUGIN_FILENAME);
 	Sub_ReloadConVars();
