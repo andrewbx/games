@@ -1,0 +1,55 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Signatures"
+		{
+			"CTerrorPlayer::OnPummelEnded"
+			{
+				"library"	"server"
+				"windows"	"\x8B\x15****\x56\x8B\xF1\x8B\x86\x40\x3E\x00\x00\x83"
+				"linux"		"@_ZN13CTerrorPlayer13OnPummelEndedEbPS_"
+			}
+
+			"CTerrorPlayer::OnPounceEnd"
+			{
+				"library"	"server"
+				"windows"	"\x53\x55\x8B\xE9\x33\xDB\x38\x9D\x6C\x3E\x00\x00\x56\x74\x2A\x8D"
+				"linux"		"@_ZN13CTerrorPlayer13OnPounceEndedEv"
+			}
+
+			"CBaseAbility::StartActivationTimer"
+			{
+				"library"	"server"
+				"windows"	"\xD9\xEE\xD9\x44\x24\x08\xDD\xE1\xDF\xE0\xDD\xD9\xF6\xC4\x44\x7A\x18\xDD"
+				"linux"		"@_ZN12CBaseAbility20StartActivationTimerEff"
+			}
+
+			"CTerrorPlayer::SetCharacter"
+                        {
+                                "library"       "server"
+                                "linux"         "@_ZN13CTerrorPlayer12SetCharacterE21SurvivorCharacterType"
+                        }
+
+			"CDirector::GetMaxPlayerZombies"
+			{
+				"library"	"server"
+				"linux"		"@_ZNK9CDirector19GetMaxPlayerZombiesEv"
+			}
+
+			"CTerrorPlayer::OnEnterGhostState"
+			{
+				"library"	"server"
+				"windows"	"\x53\x55\x56\x8B\xF1\x8B\x86\x2A\x2A\x2A\x2A\x8B\x50\x2A\x8D\x8E\x2A\x2A\x2A\x2A\x57"
+				"linux"		"@_ZN13CTerrorPlayer17OnEnterGhostStateEv"
+			}
+
+			"CTerrorPlayer::ZombieAbortControl"
+			{
+				"library"	"server"
+        	    		"windows"	"\x83\xEC\x30\x56\x8B\xF1\xE8****\x83\xF8\x03\x0F\x85****\x8B\x06"
+            			"linux"		"@_ZN13CTerrorPlayer24PlayerZombieAbortControlEv"
+			}
+		}
+	}
+}
