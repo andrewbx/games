@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>Game Development</title>
-	<link rel="stylesheet" href="css/style-dark.css" type="text/css" />
-</head>
-<body>
-<center>
-
-<a href="sourcemod/">SourceMod</a>
-
-</center>
-</body>
-</html>
+   {% assign doclist = site.pages | sort: 'url'  %}
+    <ul>
+       {% for doc in doclist %}
+            {% if doc.name contains '.md' or doc.name contains '.html' %}
+                <li><a href="{{ site.baseurl }}{{ doc.url }}">{{ doc.url }}</a></li>
+            {% endif %}
+        {% endfor %}
+    </ul>
