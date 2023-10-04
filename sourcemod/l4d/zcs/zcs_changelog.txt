@@ -1,3 +1,11 @@
+-- 03/10/2023 - Version 0.9.7 (RELEASE - L4D1)
+
+* Update for new syntax and fix introduced errors (Credit: BloodyBlade)
+* Fix CBaseEntity error with AcceptEntityInput (Credit: Accelerator74)
+* Fix cooldown issue with not restricting zombie selection
+* Tidy up some formatting in the code
+* Transition codebase to git
+
 -- 01/09/2016 - Version 0.9.6 (RELEASE - L4D1/L4D2)
 
 * Improve cvar compatibility with latest SourceMod.
@@ -25,6 +33,7 @@ CVAR's
 Check l4d(2)_zcs_cvars.txt for more information on new CVAR's. Be sure to clear
 your existing configuration file when updating. Best method: Delete .cfg file
 then restart server.
+
 
 -- 05/12/2010 - Version 0.9.4 (RELEASE - L4D1/L4D2)
 
