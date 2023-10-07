@@ -1,0 +1,8 @@
+// update_l4d.txt
+
+@ShutdownOnFailedCommand 1
+@NoPromptForPassword 0
+force_install_dir ./l4d
+login anonymous 
+app_update 222840 validate
+quit
